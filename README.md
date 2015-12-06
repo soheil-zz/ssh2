@@ -5,9 +5,21 @@ SSH2 is an interactive command line tool which allows you to quickly ssh to an E
 ![](https://raw.githubusercontent.com/soheil/ssh2/master/docs/Screen%20Shot%202015-12-06%20at%2012.48.10%20PM.png)
 
 ## Usage
-`ssh2`
+```
+$ ssh2 -u ec2-user
+```
 
-* Default user `ubuntu` is assumed, it can be changed at the top of this file `ssh2`
+```
+$ ssh2 -h
+Usage: ssh2 [options] [server_number]
+	server_number: a numeric value corresponding to the server number
+	e.g.: 'ssh2 1' will ssh into the 1st server in the list.
+
+Options:
+  -h, --help            show this help message and exit
+  -x, --bust-cache      refetch servers list from AWS
+  -u USER, --user=USER  provide user (default: ubuntu)
+```
 
 ## Requirements
 * [AWS CLI](https://aws.amazon.com/cli/)
