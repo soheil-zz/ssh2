@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+import subprocess, json, os
+from optparse import OptionParser
+
+user = 'ubuntu'
+
+cache_file_list = '/tmp/.ssh2_list'
+cache_file_num = '/tmp/.ssh2_num'
+
+usage = "usage: %prog [options] [server_number]\n\
+	server_number: a numeric value corresponding to the server number\n\
+	e.g.: '%prog 1' will ssh into the 1st server in the list."
+
+parser = OptionParser(usage)
+parser.add_option("-x", "--bust-cache", action="store_true",
+	help="refetch servers list from AWS")
+(options, args) = parser.parse_args()
+
+num = ''
+if args:
+	if not args[0].isdigit():
+		print "'server_number' must be a numeric value"
+		exit()
+	num = int(args[0])
+
+
+if options.bust_cache or not os.path.exists(cache_file_list):
+	print "Fetching servers..."
+	output = subprocess.Popen("aws ec2 describe-instances", shell=True,
+		stdout=subprocess.PIPE).stdout.read()
+	f = open(cache_file_list, 'w')
+	f.write(output)
+	f.close()
+
+output = open(cache_file_list).read()
+parsed = json.loads(output)
+
+all_instances = []
+for instances in parsed['Reservations']:
+	for instance in instances['Instances']:
+		all_instances.append(instance)
+i = 0
+
+if not num:
+	print "\nServers list:\n"
+	for instance in all_instances:
+		i += 1
+		name = ''
+		if instance['Tags']:
+			for tag in instance['Tags']:
+				if tag['Key'] == 'Name' and tag['Value']:
+					name = tag['Value']
+
+		print '%-4s%-55s%-30s' % ('[' + str(i) + ']',
+			instance['PublicDnsName'], name)
+
+default_num = 1
+if os.path.exists(cache_file_num):
+	default_num = open(cache_file_num).read()
+ok = not not num
+while not ok or not num:
+	num = raw_input("\nWhich server would you like to connect to [" +
+		str(default_num) + "]? ")
+	if not num:
+		num = int(default_num)
+		break
+	ok = num.isdigit() and 1 <= int(num) <= i
+	if ok:
+		num = int(num)
+		break
+	print "ERR: please enter a value between 1 and " + str(i)
+
+f = open(cache_file_num, 'w')
+f.write(str(num))
+f.close()
+
+instance = all_instances[num - 1]
+dns = instance['PublicDnsName']
+
+if instance['Tags']:
+	for tag in instance['Tags']:
+		if tag['Key'] == 'Name' and tag['Value']:
+			name = tag['Value']
+
+print "\nConnecting to", name, dns
+os.system('ssh ' + user + '@' + dns)
