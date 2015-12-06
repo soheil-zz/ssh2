@@ -2,8 +2,6 @@
 import subprocess, json, os
 from optparse import OptionParser
 
-user = 'ubuntu'
-
 cache_file_list = '/tmp/.ssh2_list'
 cache_file_num = '/tmp/.ssh2_num'
 
@@ -14,6 +12,9 @@ usage = "usage: %prog [options] [server_number]\n\
 parser = OptionParser(usage)
 parser.add_option("-x", "--bust-cache", action="store_true",
 	help="refetch servers list from AWS")
+parser.add_option("-u", "--user", action="store",
+                  dest="user", default="ubuntu",
+        help="provide user (default: ubuntu)")
 (options, args) = parser.parse_args()
 
 num = ''
@@ -22,7 +23,6 @@ if args:
 		print "'server_number' must be a numeric value"
 		exit()
 	num = int(args[0])
-
 
 if options.bust_cache or not os.path.exists(cache_file_list):
 	print "Fetching servers..."
@@ -59,8 +59,9 @@ if os.path.exists(cache_file_num):
 	default_num = open(cache_file_num).read()
 ok = not not num
 while not ok or not num:
-	num = raw_input("\nWhich server would you like to connect to [" +
-		str(default_num) + "]? ")
+    try:
+        num = raw_input("\nWhich server would you like to connect to [" +
+            str(default_num) + "]? ")
 	if not num:
 		num = int(default_num)
 		break
@@ -69,6 +70,9 @@ while not ok or not num:
 		num = int(num)
 		break
 	print "ERR: please enter a value between 1 and " + str(i)
+    except (EOFError, KeyboardInterrupt) as e:
+        print "\nExiting..."
+        exit()
 
 f = open(cache_file_num, 'w')
 f.write(str(num))
@@ -83,4 +87,4 @@ if instance['Tags']:
 			name = tag['Value']
 
 print "\nConnecting to", name, dns
-os.system('ssh ' + user + '@' + dns)
+os.system('ssh ' + options.user + '@' + dns)
