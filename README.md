@@ -6,7 +6,7 @@ SSH2 is an interactive command line tool which allows you to quickly ssh to an E
 
 ## Usage
 ```
-$ ssh2 -u ec2-user
+$ ssh2 1
 ```
 
 ```
