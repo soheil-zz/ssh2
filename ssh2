@@ -23,14 +23,19 @@ if args:
 		exit()
 	num = int(args[0])
 
+def extract_name(instance):
+	if instance['Tags']:
+		for tag in instance['Tags']:
+			if tag['Key'] == 'Name' and tag['Value']:
+				return tag['Value']
+	return '.'
 
 if options.bust_cache or not os.path.exists(cache_file_list):
 	print "Fetching servers..."
 	output = subprocess.Popen("aws ec2 describe-instances", shell=True,
 		stdout=subprocess.PIPE).stdout.read()
-	f = open(cache_file_list, 'w')
-	f.write(output)
-	f.close()
+	with open(cache_file_list, 'w') as f:
+		f.write(output)
 
 output = open(cache_file_list).read()
 parsed = json.loads(output)
@@ -39,20 +44,13 @@ all_instances = []
 for instances in parsed['Reservations']:
 	for instance in instances['Instances']:
 		all_instances.append(instance)
-i = 0
 
 if not num:
 	print "\nServers list:\n"
-	for instance in all_instances:
-		i += 1
-		name = ''
-		if instance['Tags']:
-			for tag in instance['Tags']:
-				if tag['Key'] == 'Name' and tag['Value']:
-					name = tag['Value']
-
-		print '%-4s%-55s%-30s' % ('[' + str(i) + ']',
-			instance['PublicDnsName'], name)
+	for i, instance in enumerate(all_instances, 1):
+		choice = '[%d]' % i
+		name = extract_name(instance)
+		print '%-4s %-55s %-30s' % (choice, instance['PublicDnsName'], name)
 
 default_num = 1
 if os.path.exists(cache_file_num):
@@ -70,17 +68,11 @@ while not ok or not num:
 		break
 	print "ERR: please enter a value between 1 and " + str(i)
 
-f = open(cache_file_num, 'w')
-f.write(str(num))
-f.close()
+with open(cache_file_num, 'w') as f:
+	f.write(str(num))
 
 instance = all_instances[num - 1]
 dns = instance['PublicDnsName']
 
-if instance['Tags']:
-	for tag in instance['Tags']:
-		if tag['Key'] == 'Name' and tag['Value']:
-			name = tag['Value']
-
-print "\nConnecting to", name, dns
+print "\nConnecting to", extract_name(instance), dns
 os.system('ssh ' + user + '@' + dns)
