@@ -2,9 +2,10 @@
 import subprocess, json, os
 from optparse import OptionParser
 
-cache_dir = os.environ.get('XDG_CACHE_HOME', os.path.join(os.path.expanduser('~'), '.cache'))
+cache_dir = os.environ.get('XDG_CACHE_HOME',
+  os.path.join(os.path.expanduser('~'), '.cache'))
 if not os.path.exists(cache_dir):
-    os.makedirs(cache_dir)
+  os.makedirs(cache_dir)
 cache_file_list = os.path.join(cache_dir, 'ssh2_list')
 cache_file_num = os.path.join(cache_dir, 'ssh2_num')
 
