@@ -19,6 +19,8 @@ Options:
   -h, --help            show this help message and exit
   -x, --bust-cache      refetch servers list from AWS
   -u USER, --user=USER  provide user (default: ubuntu)
+  -i IDENTITY, --identity=IDENTITY
+                        provide identity file
 ```
 
 ## Requirements
