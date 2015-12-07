@@ -15,6 +15,9 @@ parser.add_option("-x", "--bust-cache", action="store_true",
 parser.add_option("-u", "--user", action="store",
                   dest="user", default="ubuntu",
         help="provide user (default: ubuntu)")
+parser.add_option("-i", "--identity", action="store",
+                  dest="identity", default="",
+        help="provide identity file")
 (options, args) = parser.parse_args()
 
 num = ''
@@ -79,5 +82,9 @@ with open(cache_file_num, 'w') as f:
 instance = all_instances[num - 1]
 dns = instance['PublicDnsName']
 
+identity = ''
+if options.identity and os.path.exists(options.identity):
+	identity = "-i %s " % options.identity
+
 print "\nConnecting to", extract_name(instance), dns
-os.system('ssh ' + options.user + '@' + dns)
+os.system('ssh %s%s@%s' % (identity, options.user, dns))
