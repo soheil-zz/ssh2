@@ -20,7 +20,7 @@ parser.add_option("-i", "--identity", action="store",
         help="provide identity file")
 parser.add_option("-p", "--profile", action="store",
                   dest="profile", default="",
-        help="provide identity file")
+        help="provide aws profile")
 (options, args) = parser.parse_args()
 
 num = ''
