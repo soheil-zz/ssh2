@@ -21,6 +21,8 @@ Options:
   -u USER, --user=USER  provide user (default: ubuntu)
   -i IDENTITY, --identity=IDENTITY
                         provide identity file
+  -p PROFILE, --profile=PROFILE
+                        provide aws profile
 ```
 
 ## Requirements
