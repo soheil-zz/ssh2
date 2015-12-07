@@ -40,15 +40,20 @@ def extract_name(instance):
 
 if options.bust_cache or not os.path.exists(cache_file_list) or options.profile:
   print "Fetching servers..."
-  if options.profile:
-    output = subprocess.Popen(
-      "aws ec2 describe-instances --profile {}".format(options.profile),
-      shell=True, stdout=subprocess.PIPE).stdout.read()
-  else:
-    output = subprocess.Popen("aws ec2 describe-instances", shell=True,
-                  stdout=subprocess.PIPE).stdout.read()
-  with open(cache_file_list, 'w') as f:
-    f.write(output)
+  try:
+    if options.profile:
+      output = subprocess.Popen(
+        "aws ec2 describe-instances --profile {}".format(options.profile),
+        shell=True, stdout=subprocess.PIPE).stdout.read()
+      exit()
+    else:
+      output = subprocess.Popen("aws ec2 describe-instances", shell=True,
+                    stdout=subprocess.PIPE).stdout.read()
+    with open(cache_file_list, 'w') as f:
+      f.write(output)
+  except:
+    print "No servers found."
+    exit()
 
 output = open(cache_file_list).read()
 parsed = json.loads(output)
