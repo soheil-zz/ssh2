@@ -48,11 +48,14 @@ if options.bust_cache or not os.path.exists(cache_file_list) \
 
   child = subprocess.Popen(aws_cmd,
     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  if child.stderr.read():
+  output = child.stdout.read()
+  error = child.stderr.read()
+  if error:
+    print error
     print 'Unable to fetch any servers.'
     exit()
   with open(cache_file_list, 'w') as f:
-    f.write(child.stdout.read())
+    f.write(output)
 
 output = open(cache_file_list).read()
 parsed = json.loads(output)
