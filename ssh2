@@ -6,85 +6,94 @@ cache_file_list = '/tmp/.ssh2_list'
 cache_file_num = '/tmp/.ssh2_num'
 
 usage = "usage: %prog [options] [server_number]\n\
-	server_number: a numeric value corresponding to the server number\n\
-	e.g.: '%prog 1' will ssh into the 1st server in the list."
+    server_number: a numeric value corresponding to the server number\n\
+    e.g.: '%prog 1' will ssh into the 1st server in the list."
 
 parser = OptionParser(usage)
 parser.add_option("-x", "--bust-cache", action="store_true",
-	help="refetch servers list from AWS")
+    help="refetch servers list from AWS")
 parser.add_option("-u", "--user", action="store",
                   dest="user", default="ubuntu",
         help="provide user (default: ubuntu)")
 parser.add_option("-i", "--identity", action="store",
                   dest="identity", default="",
         help="provide identity file")
+parser.add_option("-p", "--profile", action="store",
+                  dest="profile", default="",
+        help="provide identity file")
 (options, args) = parser.parse_args()
 
 num = ''
 if args:
-	if not args[0].isdigit():
-		print "'server_number' must be a numeric value"
-		exit()
-	num = int(args[0])
+    if not args[0].isdigit():
+        print "'server_number' must be a numeric value"
+        exit()
+    num = int(args[0])
+
 
 def extract_name(instance):
-	if 'Tags' in instance:
-		for tag in instance['Tags']:
-			if tag['Key'] == 'Name' and tag['Value']:
-				return tag['Value']
-	return '.'
+    if 'Tags' in instance:
+        for tag in instance['Tags']:
+            if tag['Key'] == 'Name' and tag['Value']:
+                return tag['Value']
+    return '.'
 
-if options.bust_cache or not os.path.exists(cache_file_list):
-	print "Fetching servers..."
-	output = subprocess.Popen("aws ec2 describe-instances", shell=True,
-		stdout=subprocess.PIPE).stdout.read()
-	with open(cache_file_list, 'w') as f:
-		f.write(output)
+if options.bust_cache or not os.path.exists(cache_file_list) or options.profile:
+    print "Fetching servers..."
+    if options.profile:
+        output = subprocess.Popen(
+            "aws ec2 describe-instances --profile {}".format(options.profile),
+            shell=True, stdout=subprocess.PIPE).stdout.read()
+    else:
+        output = subprocess.Popen("aws ec2 describe-instances", shell=True,
+                                  stdout=subprocess.PIPE).stdout.read()
+    with open(cache_file_list, 'w') as f:
+        f.write(output)
 
 output = open(cache_file_list).read()
 parsed = json.loads(output)
 
 all_instances = []
 for instances in parsed['Reservations']:
-	for instance in instances['Instances']:
-		all_instances.append(instance)
+    for instance in instances['Instances']:
+        all_instances.append(instance)
 
 if not num:
-	print "\nServers list:\n"
-	for i, instance in enumerate(all_instances, 1):
-		choice = '[%d]' % i
-		name = extract_name(instance)
-		print '%-4s %-55s %-30s' % (choice, instance['PublicDnsName'], name)
+    print "\nServers list:\n"
+    for i, instance in enumerate(all_instances, 1):
+        choice = '[%d]' % i
+        name = extract_name(instance)
+        print '%-4s %-55s %-30s' % (choice, instance['PublicDnsName'], name)
 
 default_num = 1
 if os.path.exists(cache_file_num):
-	default_num = open(cache_file_num).read()
+    default_num = open(cache_file_num).read()
 ok = not not num
 while not ok or not num:
     try:
         num = raw_input("\nWhich server would you like to connect to [" +
-            str(default_num) + "]? ")
-	if not num:
-		num = int(default_num)
-		break
-	ok = num.isdigit() and 1 <= int(num) <= i
-	if ok:
-		num = int(num)
-		break
-	print "ERR: please enter a value between 1 and " + str(i)
+                        str(default_num) + "]? ")
+        if not num:
+            num = int(default_num)
+            break
+        ok = num.isdigit() and 1 <= int(num) <= i
+        if ok:
+            num = int(num)
+            break
+        print "ERR: please enter a value between 1 and " + str(i)
     except (EOFError, KeyboardInterrupt) as e:
         print "\nExiting..."
         exit()
 
 with open(cache_file_num, 'w') as f:
-	f.write(str(num))
+    f.write(str(num))
 
 instance = all_instances[num - 1]
 dns = instance['PublicDnsName']
 
 identity = ''
 if options.identity and os.path.exists(options.identity):
-	identity = "-i %s " % options.identity
+    identity = "-i %s " % options.identity
 
 print "\nConnecting to", extract_name(instance), dns
 os.system('ssh %s%s@%s' % (identity, options.user, dns))
