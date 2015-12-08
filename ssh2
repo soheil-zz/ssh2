@@ -49,6 +49,8 @@ if options.bust_cache or not os.path.exists(cache_file_list) \
   or options.profile:
 
   print "Fetching servers..."
+  if os.path.exists(cache_file_num):
+    os.remove(cache_file_num)
   aws_cmd = 'aws ec2 describe-instances'
   if options.profile:
     aws_cmd += ' --profile ' + options.profile
@@ -70,7 +72,8 @@ parsed = json.loads(output)
 all_instances = []
 if not parsed['Reservations']:
   print 'Coult not find any servers.'
-  os.remove(cache_file_list)
+  if os.path.exists(cache_file_list):
+    os.remove(cache_file_list)
   exit()
 for instances in parsed['Reservations']:
   for instance in instances['Instances']:
