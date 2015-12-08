@@ -19,7 +19,7 @@ parser.add_option("-p", "--profile", action="store",
           dest="profile", default="",
     help="provide AWS profile")
 parser.add_option("--ip", action="store",
-          dest="ip", default="false",
+          dest="ip", default=0,
     help="connect using IP instead of DNS")
 (options, args) = parser.parse_args()
 
