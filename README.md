@@ -12,8 +12,8 @@ $ ssh2 1
 ```
 $ ssh2 -h
 Usage: ssh2 [options] [server_number]
-	server_number: a numeric value corresponding to the server number
-	e.g.: 'ssh2 1' will ssh into the 1st server in the list.
+  server_number: a numeric value corresponding to the server number
+  e.g.: 'ssh2 1' will ssh into the 1st server in the list.
 
 Options:
   -h, --help            show this help message and exit
@@ -22,7 +22,8 @@ Options:
   -i IDENTITY, --identity=IDENTITY
                         provide identity file
   -p PROFILE, --profile=PROFILE
-                        provide aws profile
+                        provide AWS profile
+  --ip=IP               connect using IP instead of DNS
 ```
 
 ## Requirements

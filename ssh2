@@ -17,10 +17,10 @@ parser.add_option("-i", "--identity", action="store",
     help="provide identity file")
 parser.add_option("-p", "--profile", action="store",
           dest="profile", default="",
-    help="provide aws profile")
+    help="provide AWS profile")
 parser.add_option("--ip", action="store",
           dest="ip", default="false",
-    help="choose ip over dns")
+    help="connect using IP instead of DNS")
 (options, args) = parser.parse_args()
 
 cache_dir = os.environ.get('XDG_CACHE_HOME',
