@@ -32,6 +32,13 @@ Options:
 
 ## Installation
 ```
+pip install ssh2
+```
+
+or
+
+without using Python package manager:
+```
 git clone https://github.com/soheil/ssh2.git
 cd ssh2
 ln -sf $(pwd)/ssh2 /usr/local/bin/
