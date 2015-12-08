@@ -18,6 +18,9 @@ parser.add_option("-i", "--identity", action="store",
 parser.add_option("-p", "--profile", action="store",
           dest="profile", default="",
     help="provide aws profile")
+parser.add_option("--ip", action="store",
+          dest="ip", default="false",
+    help="choose ip over dns")
 (options, args) = parser.parse_args()
 
 cache_dir = os.environ.get('XDG_CACHE_HOME',
@@ -100,7 +103,7 @@ with open(cache_file_num, 'w') as f:
   f.write(str(num))
 
 instance = all_instances[num - 1]
-dns = instance['PublicDnsName']
+dns = [instance['PublicDnsName'], instance['PrivateIpAddress']][options.ip]
 
 identity = ''
 if options.identity and os.path.exists(options.identity):
