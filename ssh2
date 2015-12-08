@@ -68,6 +68,10 @@ output = open(cache_file_list).read()
 parsed = json.loads(output)
 
 all_instances = []
+if not parsed['Reservations']:
+  print 'Coult not find any servers.'
+  os.remove(cache_file_list)
+  exit()
 for instances in parsed['Reservations']:
   for instance in instances['Instances']:
     all_instances.append(instance)
