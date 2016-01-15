@@ -24,7 +24,18 @@ Options:
   -p PROFILE, --profile=PROFILE
                         provide AWS profile
   --ip=IP               connect using IP instead of DNS
+  -g GREP, --grep=GREP  filter the server list
+
+$ ssh2 -g Cron
+
+Servers list:
+
+[1]  ec2-XXX-XXX-XXX-XXX.us-west-2.compute.amazonaws.com       Cron
+
+Which server would you like to connect to [1]? 
 ```
+
+
 
 ## Requirements
 * [AWS CLI](https://aws.amazon.com/cli/)
