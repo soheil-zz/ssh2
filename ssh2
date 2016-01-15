@@ -24,6 +24,9 @@ parser.add_option("-r", "--region", action="store",
 parser.add_option("--ip", action="store",
           dest="ip", default=0,
     help="connect using IP instead of DNS")
+parser.add_option("-g", "--grep", action="store",
+          dest="grep", default="",
+    help="filter the server list")
 (options, args) = parser.parse_args()
 
 cache_dir = os.environ.get('XDG_CACHE_HOME',
@@ -87,6 +90,9 @@ if not parsed['Reservations']:
 for instances in parsed['Reservations']:
   for instance in instances['Instances']:
     all_instances.append(instance)
+
+if options.grep:
+  all_instances = [inst for inst in all_instances if options.grep in extract_name(inst)]
 
 if not num:
   print "\nServers list:\n"
