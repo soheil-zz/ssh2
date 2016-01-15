@@ -38,7 +38,7 @@ Servers list:
 
 Which server would you like to connect to [1]? 
 
-$ ssh2 -g webrt 1
+$ ssh2 -g webrt
 
 Connecting to webrtc-kurento ec2-XX-XX-XX-XX.us-west-2.compute.amazonaws.com
 ```
