@@ -84,7 +84,7 @@ if not num:
   for i, instance in enumerate(all_instances, 1):
     choice = '[%d]' % i
     name = extract_name(instance)
-    print '%-4s %-55s %-30s' % (choice, instance['PublicDnsName'], name)
+    print '%-4s %-35s %-55s' % (choice, name + (35 - len(name)) * '.', instance['PublicDnsName'])
 
 default_num = 1
 if os.path.exists(cache_file_num):
