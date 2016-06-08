@@ -24,7 +24,26 @@ Options:
   -p PROFILE, --profile=PROFILE
                         provide AWS profile
   --ip=IP               connect using IP instead of DNS
+  -g GREP, --grep=GREP  filter the server list
 ```
+
+### Filtering the list by EC2 instance name
+
+```
+$ ssh2 -g webrt
+
+Servers list:
+
+[1]  ec2-XX-XX-XX-XX.us-west-2.compute.amazonaws.com       webrtc-kurento
+
+Which server would you like to connect to [1]? 
+
+$ ssh2 -g webrt 1
+
+Connecting to webrtc-kurento ec2-XX-XX-XX-XX.us-west-2.compute.amazonaws.com
+```
+
+
 
 ## Requirements
 * [AWS CLI](https://aws.amazon.com/cli/)

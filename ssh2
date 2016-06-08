@@ -18,17 +18,27 @@ parser.add_option("-i", "--identity", action="store",
 parser.add_option("-p", "--profile", action="store",
           dest="profile", default="",
     help="provide AWS profile")
+parser.add_option("-r", "--region", action="store",
+          dest="region", default="",
+    help="provide AWS region")
 parser.add_option("--ip", action="store",
           dest="ip", default=0,
     help="connect using IP instead of DNS")
+parser.add_option("-g", "--grep", action="store",
+          dest="grep", default="",
+    help="filter the server list")
 (options, args) = parser.parse_args()
 
 cache_dir = os.environ.get('XDG_CACHE_HOME',
   os.path.join(os.path.expanduser('~'), '.cache'))
 if not os.path.exists(cache_dir):
   os.makedirs(cache_dir)
-cache_file_list = os.path.join(cache_dir, 'ssh2_list')
-cache_file_num = os.path.join(cache_dir, 'ssh2_num')
+if options.region:
+  cache_file_list = os.path.join(cache_dir, 'ssh2_list_' + options.region)
+  cache_file_num = os.path.join(cache_dir, 'ssh2_num_' + options.region)
+else:
+  cache_file_list = os.path.join(cache_dir, 'ssh2_list')
+  cache_file_num = os.path.join(cache_dir, 'ssh2_num')
 
 num = ''
 if args:
@@ -51,9 +61,11 @@ if options.bust_cache or not os.path.exists(cache_file_list) \
   print "Fetching servers..."
   if os.path.exists(cache_file_num):
     os.remove(cache_file_num)
-  aws_cmd = 'aws ec2 describe-instances'
+  aws_cmd = 'aws ec2 describe-instances --output json'
   if options.profile:
     aws_cmd += ' --profile ' + options.profile
+  if options.region:
+    aws_cmd += ' --region ' + options.region
 
   child = subprocess.Popen(aws_cmd,
     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -78,6 +90,9 @@ if not parsed['Reservations']:
 for instances in parsed['Reservations']:
   for instance in instances['Instances']:
     all_instances.append(instance)
+
+if options.grep:
+  all_instances = [inst for inst in all_instances if options.grep in extract_name(inst)]
 
 if not num:
   print "\nServers list:\n"
